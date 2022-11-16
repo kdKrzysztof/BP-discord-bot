@@ -13,7 +13,7 @@ client.login(process.env.TOKEN)
 
 const Messenger = (category, name, credits, bits, url, creator, img) => {
     const guildID = '988141673257271386'
-    // const roleID_CS = '990648751221788744'
+    const roleID_CS = '990648751221788744'
     const roleID_PST = '1041330624578981970'
     // const guild = client.guilds.cache.get(guildID)
     // const devRoleID = '988144372732268544'
@@ -44,8 +44,8 @@ const Messenger = (category, name, credits, bits, url, creator, img) => {
             }
         )
         .setTimestamp()
-    channel.send({content: "<@&" + '>', embeds: [embedData]})
-    // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData]})
+    channel.send({content: "<@&" + roleID_CS + '>', embeds: [embedData]})
+    channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData]})
 }
 
 
