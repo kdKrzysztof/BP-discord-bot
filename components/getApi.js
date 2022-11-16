@@ -41,6 +41,7 @@ let ItemRaresImgList = []
 const Rares = setInterval(async () => {
 
     itemRaresList = []
+    ItemRaresImgList = []
 
     const data = await getApi(BP_API_RARES)
     
