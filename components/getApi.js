@@ -34,6 +34,7 @@ let priceBits
 let isFree
 let category
 let oldRare
+let secondOldRare
 let ItemLink
 let itemRaresList = []
 let ItemRaresImgList = []
@@ -45,21 +46,36 @@ const Rares = setInterval(async () => {
 
     const data = await getApi(BP_API_RARES)
     
+    
     let dom = new JSDOM(`${data}`)
     
-    dom.window.document.querySelectorAll('a').forEach(e => {
-            itemRaresList.push(e.href)
-    })
-    
-    dom.window.document.querySelectorAll('img').forEach(e => {
-        ItemRaresImgList.push(e.src)
-    })
-
     priceCredits = dom.window.document.getElementsByClassName('d-flex flex-column gap-1 text-center text-sm my-2')[0].children[0]
     priceBits = dom.window.document.getElementsByClassName('d-flex flex-column gap-1 text-center text-sm my-2')[0].children[1]
     name = dom.window.document.getElementsByClassName('d-block truncate text-decoration-none fw-semibold text-light mb-1')[0].textContent
     category = dom.window.document.getElementsByClassName('tabs flex-column')[0].children[0].textContent.trim()
     category = category.slice(0, category.length - 1)
+    creator = dom.window.document.querySelector('.text-info').textContent.trim()
+    
+    dom.window.document.querySelectorAll('a').forEach(e => {
+        itemRaresList.push(e.href)
+    })
+    
+    dom.window.document.querySelectorAll('img').forEach(e => {
+        ItemRaresImgList.push(e.src)
+    })
+    
+    console.log('Second old rare is:' + secondOldRare)
+
+    if (secondOldRare === undefined) {
+        secondOldRare = itemRaresList[1]
+        return
+    }
+    
+    if (oldRare === itemRaresList[0]) {return}
+    oldRare = itemRaresList[0]
+    
+    if (oldRare === secondOldRare) {return}
+    secondOldRare = itemRaresList[1]
 
     if (priceBits) {
         priceBits = priceBits.textContent
@@ -76,16 +92,10 @@ const Rares = setInterval(async () => {
         }
     }
 
-    creator = dom.window.document.querySelector('.text-info').textContent.trim()
-    
-    if (oldRare === itemRaresList[0]) {return}
-    oldRare = itemRaresList[0]
     
     ItemLink = itemRaresList[0].replace(":8080", "")
 
     console.log(`${ItemLink}, \n Name: ${name} \n Creator: ${creator}, \n Credits: ${priceCredits}, \n Bits: ${priceBits}`)
-    
-    itemRaresList = []
     
     if (creator !== "BrickPlanet") { return }
     
