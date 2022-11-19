@@ -31,6 +31,7 @@ let name
 let creator
 let priceCredits
 let priceBits
+let stock
 let isFree
 let category
 let oldRare
@@ -55,7 +56,8 @@ const Rares = setInterval(async () => {
     category = dom.window.document.getElementsByClassName('tabs flex-column')[0].children[0].textContent.trim()
     category = category.slice(0, category.length - 1)
     creator = dom.window.document.querySelector('.text-info').textContent.trim()
-    
+    // stock = dom.window.document.querySelector('span.badge.bg-danger').textContent.trim().slice(0,2)
+
     dom.window.document.querySelectorAll('a').forEach(e => {
         itemRaresList.push(e.href)
     })

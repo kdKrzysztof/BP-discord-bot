@@ -20,7 +20,6 @@ client.on('ready', () => {
 
     let commands
     
-    
     if (guild) {
         commands = guild.commands
     } else {
