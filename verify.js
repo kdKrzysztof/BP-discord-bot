@@ -18,30 +18,23 @@ const client = new DiscordJS.Client({
 client.login(process.env.TOKEN)
 
 client.on('ready', () => {
-    const verifiedRole = '988144280596004984'
     const guildID = '988141673257271386'
     const guild = client.guilds.cache.get(guildID)
-    const timeOut = 15000
-
+    const timeOut = 60000
+    
     
     let commands
-
+    
     if (guild) {
         commands = guild.commands
     } else {
         commands = client.application?.commands
     }
-
+    
     commands?.create({
         name: 'verify',
         description: 'Verify your brickplanet account',
         options: [
-            // {
-            //     name: 'verify',
-            //     description: 'Type your brickplanet account ID',
-            //     required: true,
-            //     type: DiscordJS.Constants.ApplicationCommandOptionTypes.NUMBER
-            // },
             {
                 name: 'username',
                 description: 'Type your brickplanet account username',
@@ -60,17 +53,18 @@ client.on('ready', () => {
         .setCustomId('VERIFY')
         )
         
-    client.on('interactionCreate', async (interaction) => {
+        client.on('interactionCreate', async (interaction) => {
             if (interaction.isCommand()) {
+                const verifiedRole = '988144280596004984'
                 const userRole = interaction.member._roles.find(e => e == verifiedRole)
                 const { commandName, options } = interaction
-
+                const randomNumber = random()
+                
                 let username = (options.getString('username')).toLowerCase().trim()
-                // let userID = options.getNumber('verify').toString().trim()
-
+                
                 console.log(commandName + ' :' + username)
-
-
+                
+                
                 const button = new MessageActionRow().addComponents(
                     new MessageButton()
                     .setLabel('Verify')
@@ -79,7 +73,7 @@ client.on('ready', () => {
                 )
                 if(!userRole){
                     const user = client.users.cache.get(interaction.member.user.id)
-                    await user.send("Type this random number in your profile's bio: " + random())
+                    await user.send("Type this random number in your profile's bio: " + randomNumber)
                     await interaction.reply({
                         content: 'Click when you will change your profiles BIO to verify',
                         components: [button],
@@ -101,27 +95,40 @@ client.on('ready', () => {
 
                     const filter = i => i.customId === 'VERIFY' && i.user.id === user.id
                 
-                    const collector = interaction.channel.createMessageComponentCollector({filter, time:15000})
+                    const collector = interaction.channel.createMessageComponentCollector({filter, time:timeOut})
                     
                     collector.on('collect', async i => {
                         console.log('button clicked')
 
                         const data = await getProfileData(username)
-                        console.log(data)
-
-                        await interaction.followUp({
-                                content: 'you clicked a button! nice',
+                        console.log(data[0])
+                        if (data[0].startsWith(randomNumber)){
+                            try{
+                                await interaction.member.setNickname(data[1])
+                            } catch {
+                                console.log('no perms')
+                                return
+                            }
+                            await interaction.member.roles.add(verifiedRole)
+                            await i.deferUpdate()
+                            await user.send('Your account has been verified!')
+                        } else {
+                            interaction.editReply({
+                                content: 'Incorrect verification code in BIO. Please redo the interaction.',
+                                components: [],
                                 ephemeral: true
                             })
-                        
+                        }
                     })
                 } else {
                     await interaction.reply(
                         {
                             content: 'Your account is already verfied',
+                            components: [],
                             ephemeral: true,
                         }
                     )
+                    interaction.deferred
                 }
             }
         })

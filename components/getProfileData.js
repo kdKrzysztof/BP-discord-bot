@@ -21,7 +21,7 @@ const getProfileData = async (a) => {
             'X-Requested-With': 'XMLHttpRequest'
         }
     },
-    console.log("sent verification result")
+    console.log("sent searchAPI result")
     )  
     let link = respSearch.data.match(`(?<=https:\/\/www\.brickplanet\.com:8080\/profile\/)(.+?)(?!.+?)`)
 
@@ -38,7 +38,17 @@ const getProfileData = async (a) => {
         dataResult = dataResult.filter(n => n)
     }
 
-    const respProfile = await axios.get('http://localhost:8080/${}')
+    let userID = dataResult[0]
+    let username = dataResult[1]
+
+    const profileURL = `https://www.brickplanet.com/profile/${userID}/${username}`
+    const respProfile = await axios.get(`http://localhost:8080/${profileURL}`, {},
+        console.log('sent profile result')
+    )
+    
+    let dom = new JSDOM(`${respProfile.data}`)
+
+    return [dom.window.document.getElementsByClassName('card text-sm card-body mb-4')[0].textContent.trim(), username]
 }
 
 export default getProfileData
