@@ -1,54 +1,42 @@
 import { default as axios } from "axios"
-import cors from 'cors-anywhere'
+// import cors from 'cors-anywhere'
 import dotenv from 'dotenv'
 import { JSDOM } from "jsdom"
+import {parse} from 'node-html-parser';
 dotenv.config()
-
-var host = process.env.HOST
-var port = process.env.PORT
-
-cors.createServer({
-    originWhitelist: [],
-}).listen(port, host, () => {
-    console.log('Running CORS Anywhere on ' + host + ':' + port)
-})
 
 
 const getProfileData = async (a) => {
     const searchURL = `https://www.brickplanet.com/players?search=${a}`
-    const respSearch = await axios.get(`http://localhost:8080/${searchURL}`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    },
-    console.log("sent searchAPI result")
-    )  
-    let link = respSearch.data.match(`(?<=https:\/\/www\.brickplanet\.com:8080\/profile\/)(.+?)(?!.+?)`)
-
+    const respSearch = await fetch(searchURL);
+    const respSearchBody = await respSearch.text();
+    let link = respSearchBody.match(`(?<=https:\/\/www\.brickplanet\.com\/profile\/)(.+?)(?!.+?)`)
+    
+    
     let dataResult = []
     let data = Object.assign({}, link)
     delete data.input
     delete data.index
     let dataJSON = JSON.stringify(data, null, 4)
-
-
+    
+    
     if(dataJSON.indexOf(a) > -1){   
         data[0] = data[0].replace(/[^a-z0-9-]/g, ' ')
-        dataResult =  data[0].split(' ')
+        dataResult = data[0].split(' ')
         dataResult = dataResult.filter(n => n)
     }
-
+    
     let userID = dataResult[0]
     let username = dataResult[1]
+    console.log(userID, username)
 
     const profileURL = `https://www.brickplanet.com/profile/${userID}/${username}`
-    const respProfile = await axios.get(`http://localhost:8080/${profileURL}`, {},
-        console.log('sent profile result')
-    )
+    const respProfile = await fetch(profileURL)
+    const respProfileBody = await respProfile.text()
     
-    let dom = new JSDOM(`${respProfile.data}`)
+    let profileBodyParser = parse(respProfileBody)
 
-    return [dom.window.document.getElementsByClassName('card text-sm card-body mb-4')[0].textContent.trim(), username]
+    return [profileBodyParser.querySelector('.card.text-sm.card-body.mb-4').innerText.trim(), username]
 }
 
 export default getProfileData
