@@ -13,7 +13,7 @@ const client = new DiscordJS.Client({
 client.login(process.env.TOKEN)
 
 client.on('ready', () => {
-    let ListOfQuotes = ['Join "Profit Sell Trade"!', 'Made by Krzysiek#5558', 'Ready to false ping!', 'Waiting for new rares!']
+    let ListOfQuotes = ['Join "The Silk Road - TSR"!', 'Made by Krzysiek#5558', 'Ready to false ping!', 'Waiting for new rares!']
     let random = 0
     setInterval(() => {
         random = random + 1
