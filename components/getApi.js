@@ -1,38 +1,26 @@
-import { default as axios } from "axios"
-import { JSDOM } from "jsdom"
-import cors from 'cors-anywhere'
+import {parse} from 'node-html-parser';
 import dotenv from 'dotenv'
 dotenv.config()
 import Messenger from './messenger.js'
 
-var host = process.env.HOST
-var port = process.env.PORT
-
-cors.createServer({
-    originWhitelist: [],
-}).listen(port, host, () => {
-    console.log('Running CORS Anywhere on ' + host + ':' + port)
-})
-
 const getApi = async (a) => {
-    const resp = await axios.get(`http://localhost:8080/${a}`, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    },
-    console.log("sent resp")
-    )
-    return resp.data
+    const resp = await fetch(a)
+    const respText = await resp.text()
+   return respText
 }
 
 const BP_API_RARES = `https://www.brickplanet.com/shop/search?featured=0&rare=1&type=0&search=&sort_by=5&page=1`
+const BP_API_normals = `https://www.brickplanet.com/shop/search?featured=0&rare=0&type=1&search=&sort_by=5&page=1`
+const BP_API_BUNDLES = `https://www.brickplanet.com/shop/search?featured=0&rare=0&type=6&search=&sort_by=0&page=1`
+const BP_API_newShirts = `https://www.brickplanet.com/shop/search?featured=0&rare=0&type=6&search=&sort_by=5&page=1`
 
+let start = 0
 let name
 let creator
 let priceCredits
 let priceBits
+let priceFree
 let stock
-let isFree
 let category
 let oldRare
 let secondOldRare
@@ -41,67 +29,65 @@ let itemRaresList = []
 let ItemRaresImgList = []
 
 const Rares = setInterval(async () => {
-
+    console.log(start)
     itemRaresList = []
     ItemRaresImgList = []
 
-    const data = await getApi(BP_API_RARES)
+    const data = await getApi(BP_API_newShirts)
     
+    let root = parse(data, {
+        lowerCaseTagName: false,
+        comment: false,
+        blockTextElements: {
+            script: false,
+            noscript: false,
+            style: false,
+            pre: true,
+        }
+    })
     
-    let dom = new JSDOM(`${data}`)
-    
-    priceCredits = dom.window.document.getElementsByClassName('d-flex flex-column gap-1 text-center text-sm my-2')[0].children[0]
-    priceBits = dom.window.document.getElementsByClassName('d-flex flex-column gap-1 text-center text-sm my-2')[0].children[1]
-    name = dom.window.document.getElementsByClassName('d-block truncate text-decoration-none fw-semibold text-light mb-1')[0].textContent
-    category = dom.window.document.getElementsByClassName('tabs flex-column')[0].children[0].textContent.trim()
+    priceCredits = root.querySelectorAll('.d-flex.flex-column.gap-1.text-center.text-sm.my-2')[0]?.getElementsByTagName('div')[0]?.structuredText.trim()
+    priceBits = root.querySelectorAll('.d-flex.flex-column.gap-1.text-center.text-sm.my-2')[0]?.getElementsByTagName('div')[1]?.structuredText.trim()
+    priceFree = root.querySelectorAll('.d-flex.flex-column.gap-1.text-center.text-sm.my-2')[0]?.getElementsByTagName('span')[0]?.structuredText.trim()
+    name = root.querySelectorAll('.d-block.truncate.text-decoration-none.fw-semibold.text-light.mb-1')[0]?.structuredText.trim()
+    stock = root?.querySelectorAll('span.badge.bg-danger')[0]?.structuredText.trim()
+    category = root.querySelectorAll('.text-xs.text-muted.fw-semibold.text-uppercase.my-2')[0]?.structuredText.trim()
     category = category.slice(0, category.length - 1)
-    creator = dom.window.document.querySelector('.text-info').textContent.trim()
+    creator = root.querySelectorAll('.text-info')[0]?.structuredText.trim()
+    
     // stock = dom.window.document.querySelector('span.badge.bg-danger').textContent.trim().slice(0,2)
-
-    dom.window.document.querySelectorAll('a').forEach(e => {
-        itemRaresList.push(e.href)
+    root.querySelectorAll('a.d-block.position-relative').forEach(e => {
+        itemRaresList.push(e.attributes['href'].trim())
     })
     
-    dom.window.document.querySelectorAll('img').forEach(e => {
-        ItemRaresImgList.push(e.src)
+    root.querySelectorAll('img').forEach(e => {
+        ItemRaresImgList.push(e.attributes['src'].trim())
     })
     
-    console.log('Second old rare is:' + secondOldRare)
-
+    
     if (secondOldRare === undefined) {
         secondOldRare = itemRaresList[1]
         return
     }
+    
+    console.log('Second old rare is:' + secondOldRare)
     
     if (oldRare === itemRaresList[0]) {return}
     oldRare = itemRaresList[0]
     
     if (oldRare === secondOldRare) {return}
     secondOldRare = itemRaresList[1]
-
-    if (priceBits) {
-        priceBits = priceBits.textContent
-    } else {
-        priceBits = '0'
-    }
-
-    if (priceCredits) {
-        if (priceCredits.textContent === 'Free'){
-            isFree = true
-            priceCredits = '0'
-        } else {
-            priceCredits = priceCredits.textContent
-        }
-    }
-
     
-    ItemLink = itemRaresList[0].replace(":8080", "")
+    ItemLink = itemRaresList[0] 
+    
+    start = start + 1
+    
+    console.log(`${ItemLink}, \n Name: ${name} \n Creator: ${creator}, \n Credits: ${priceCredits}, \n Bits: ${priceBits}, \n URL: ${ItemRaresImgList[0]}`)
+    
+    if (start <= 1) {return}
 
-    console.log(`${ItemLink}, \n Name: ${name} \n Creator: ${creator}, \n Credits: ${priceCredits}, \n Bits: ${priceBits}`)
-    
-    if (creator !== "BrickPlanet") { return }
-    
-    Messenger(category, name, priceCredits, priceBits, ItemLink, creator, ItemRaresImgList[0])
+    Messenger(category, name, priceCredits, priceBits, priceFree, ItemLink, creator, stock, ItemRaresImgList[0])
+
 }, 3000);
 
 
