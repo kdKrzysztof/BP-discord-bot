@@ -62,7 +62,7 @@ client.on('ready', () => {
                 
                 let username = (options.getString('username')).toLowerCase().trim()
                 
-                console.log(commandName + ' :' + username)
+                console.log(commandName + ': ' + username)
                 
                 
                 const button = new MessageActionRow().addComponents(
@@ -98,10 +98,9 @@ client.on('ready', () => {
                     const collector = interaction.channel.createMessageComponentCollector({filter, time:timeOut})
                     
                     collector.on('collect', async i => {
-                        console.log('button clicked')
 
                         const data = await getProfileData(username)
-                        console.log(data[0])
+
                         if (data[0].startsWith(randomNumber)){
                             try{
                                 await interaction.member.setNickname(data[1])
