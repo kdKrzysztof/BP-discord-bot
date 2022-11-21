@@ -1,4 +1,4 @@
-import DiscordJS, { ApplicationCommandManager, GuildApplicationCommandManager, GuildChannel, GuildMember, Intents, Message, MessageEmbed, Role } from 'discord.js'
+import DiscordJS, { ApplicationCommandManager, GuildApplicationCommandManager, GuildChannel, GuildMember, Intents, Message, MessageEmbed, Role, MessageActionRow, MessageButton } from 'discord.js'
 import dotenv from 'dotenv'
 dotenv.config()
 
@@ -11,7 +11,7 @@ const client = new DiscordJS.Client({
 
 client.login(process.env.TOKEN)
 
-const Messenger = (category, name, credits, bits, url, creator, img) => {
+const Messenger = (category, name, credits, bits, isFree, url, creator, stock, img) => {
     const guildID = '988141673257271386'
     const roleID_CS = '990648751221788744'
     const roleID_PST = '1041330624578981970'
@@ -27,25 +27,51 @@ const Messenger = (category, name, credits, bits, url, creator, img) => {
         .setTitle(name)
         .setURL(url)
         .setThumbnail(img)
-        .addFields(
-            {
-                name: 'Creator',
-                value: creator
-            },
-            {
-                name: 'Credits',
-                value: credits,
-                inline: true 
-            },
+        // .addFields(
+        //         {
+        //             name: 'Creator',
+        //             value: creator
+        //         },
+        //     )
+        .setTimestamp()
+    if (bits !== undefined) {
+        embedData.addFields(
             {
                 name: 'Bits',
                 value: bits,
                 inline: true 
             }
+        )    
+    }
+    if (credits !== undefined) {
+        embedData.addFields(
+            {
+                name: 'Credits',
+                value: credits,
+                inline: true 
+            }
         )
-        .setTimestamp()
-    channel.send({content: "<@&" + roleID_CS + '>', embeds: [embedData]})
-    channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData]})
+    }
+    if (bits === undefined && credits === undefined && isFree !== undefined) {
+        embedData.setAuthor({name: 'Free'})
+    }
+    if (stock !== undefined) {
+        embedData.addFields(
+            {
+                name: 'Stock',
+                value: stock,
+                inline: true 
+            }
+        )
+    }
+    const linkButton = new MessageActionRow().addComponents(
+        new MessageButton()
+        .setLabel('Link')
+        .setStyle('LINK')
+        .setURL(url)
+        )
+    channel.send({content: "<@&" + roleID_CS + '>', embeds: [embedData], components: [linkButton]})
+    channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
 }
 
 
