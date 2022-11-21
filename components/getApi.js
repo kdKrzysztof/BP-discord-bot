@@ -5,8 +5,9 @@ import Messenger from './messenger.js'
 
 const getApi = async (a) => {
     const resp = await fetch(a)
+    console.log('received data');
     const respText = await resp.text()
-   return respText
+    return respText
 }
 
 const BP_API_RARES = `https://www.brickplanet.com/shop/search?featured=0&rare=1&type=0&search=&sort_by=5&page=1`
@@ -29,11 +30,10 @@ let itemRaresList = []
 let ItemRaresImgList = []
 
 const Rares = setInterval(async () => {
-    console.log(start)
     itemRaresList = []
     ItemRaresImgList = []
 
-    const data = await getApi(BP_API_newShirts)
+    const data = await getApi(BP_API_RARES)
     
     let root = parse(data, {
         lowerCaseTagName: false,
