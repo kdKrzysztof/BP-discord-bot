@@ -1,7 +1,6 @@
 import DiscordJS, { ApplicationCommandManager, GuildApplicationCommandManager, GuildChannel, GuildMember, Intents, Message, MessageEmbed, Role, MessageActionRow, MessageButton} from 'discord.js'
 import dotenv from 'dotenv'
-import getProfileData from './components/getProfileData.js'
-import { JSDOM } from "jsdom"
+import getProfileData from '../components/getProfileData.js'
 dotenv.config()
 
 const random = () => {

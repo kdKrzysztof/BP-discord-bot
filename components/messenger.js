@@ -11,16 +11,16 @@ const client = new DiscordJS.Client({
 
 client.login(process.env.TOKEN)
 
-const Messenger = (category, name, credits, bits, isFree, url, creator, stock, img) => {
-    const guildID = '988141673257271386'
-    const roleID_CS = '990648751221788744'
-    const roleID_PST = '1041330624578981970'
-    // const guild = client.guilds.cache.get(guildID)
-    // const devRoleID = '988144372732268544'
+const guildID = '988141673257271386'
+const roleID_CS = '990648751221788744'
+const roleID_PST = '1041330624578981970'
+// const guild = client.guilds.cache.get(guildID)
+// const devRoleID = '988144372732268544'
+// const channelPST = client.channels.cache.get('1041328338272264202')
 
+
+const RareMessenger = (category, name, credits, bits, isFree, url, creator, stock, img) => {
     const channel = client.channels.cache.get('988173210057052210')
-    const channelPST = client.channels.cache.get('1041328338272264202')
-    
     const embedData = new MessageEmbed()
         .setColor(0xDC143C)
         .setAuthor({ name: category})
@@ -34,15 +34,6 @@ const Messenger = (category, name, credits, bits, isFree, url, creator, stock, i
         //         },
         //     )
         .setTimestamp()
-    if (bits !== undefined) {
-        embedData.addFields(
-            {
-                name: 'Bits',
-                value: bits,
-                inline: true 
-            }
-        )    
-    }
     if (credits !== undefined) {
         embedData.addFields(
             {
@@ -52,14 +43,24 @@ const Messenger = (category, name, credits, bits, isFree, url, creator, stock, i
             }
         )
     }
+    if (bits !== undefined) {
+        embedData.addFields(
+            {
+                name: 'Bits',
+                value: bits,
+                inline: true 
+            }
+        )    
+    }
     if (bits === undefined && credits === undefined && isFree !== undefined) {
         embedData.setAuthor({name: 'Free'})
     }
     if (stock !== undefined) {
+        const fixedStock = stock.replace('remaining', '')
         embedData.addFields(
             {
                 name: 'Stock',
-                value: stock,
+                value: fixedStock,
                 inline: true 
             }
         )
@@ -71,8 +72,15 @@ const Messenger = (category, name, credits, bits, isFree, url, creator, stock, i
         .setURL(url)
         )
     channel.send({content: "<@&" + roleID_CS + '>', embeds: [embedData], components: [linkButton]})
-    channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
+    // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
+}
+
+const DealMessenger = () => {
+    
 }
 
 
-export default Messenger
+export {
+    DealMessenger,
+    RareMessenger
+}

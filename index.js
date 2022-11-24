@@ -1,4 +1,4 @@
-import notifier from "./components/getApi.js"
+import notifier from "./components/getRareData.js"
 import DiscordJS, { ApplicationCommandManager, GuildApplicationCommandManager, GuildChannel, GuildMember, Intents, Message, MessageEmbed, Role } from 'discord.js'
 import dotenv from 'dotenv'
 dotenv.config()

@@ -2,13 +2,13 @@
   "name": "bvtrade-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "hotdeals.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon hotdeals.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Christopher's Lounge",
   "license": "MIT",
   "dependencies": {
     "discord.js": "^13.12.0",

@@ -1,7 +1,5 @@
-import { default as axios } from "axios"
-// import cors from 'cors-anywhere'
+import getApi from './getApi.js'
 import dotenv from 'dotenv'
-import { JSDOM } from "jsdom"
 import {parse} from 'node-html-parser';
 dotenv.config()
 
