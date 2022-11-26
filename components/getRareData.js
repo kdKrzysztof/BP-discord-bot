@@ -39,7 +39,7 @@ const Rares = setInterval(async () => {
         }
     })
 
-    // hotdeal(data) // snipe function
+    hotdeal(data) // snipe function
     console.log('number:' + start)
 
     
@@ -95,7 +95,7 @@ const Rares = setInterval(async () => {
     
     console.log(`${ItemLink}, \n Name: ${name} \n Creator: ${creator}, \n Credits: ${priceCredits}, \n Bits: ${priceBits}, \n URL: ${ItemRaresImgList[0]}`)
     
-    // if (start <= 1) {return}
+    if (start <= 1) {return}
 
 
     RareMessenger(category, name, priceCredits, priceBits, priceFree, ItemLink, stock, ItemRaresImgList[0])

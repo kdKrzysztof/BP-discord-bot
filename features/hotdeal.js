@@ -6,12 +6,15 @@ import DiscordJS, {Intents} from 'discord.js'
 dotenv.config()
 
 
-let oldDeal = 0
-let alreadyDetected
+let oldPrice = 0
 let oldStuff = []
+let alreadyDetected = ''
+let alreadyDetectedStacked = ''
 
 const hotdeal = async (data) => {
+    console.log(`Old price: ${oldPrice}, already detected: ${alreadyDetected}`)
     try {
+            
             let root = parse(data, {
                 lowerCaseTagName: false,
                 comment: false,
@@ -22,32 +25,39 @@ const hotdeal = async (data) => {
                     pre: true,
                 }
             })
-            console.log(oldStuff)
 
             root.querySelectorAll('.card.position-relative.h-100').forEach(e => {
                 let price
                 try {
                     price = e.querySelector('.text-credits').innerText.trim().replace(/,/, '')
                 } catch (err) {}
-
+                
                 let url = e.childNodes[1].attributes['href']
                 let snipeName = e.childNodes[3].childNodes[1].childNodes[3].childNodes[1].innerText.trim()
                 let dealImage =  e.childNodes[1].getElementsByTagName('img')[0].attributes['src']
-                let stackedName = (snipeName.replaceAll(' ', '')).trim()
+                let stackedName = (price+snipeName.replaceAll(' ', '')).trim()
+
                 
                 if (price === undefined || url === undefined) {return}
                 
-                // if (price != oldDeal || price < oldDeal) {
-                // }
-                    if(price <= 1200){
-                        if (snipeName === alreadyDetected) {
-                            return
-                        } else {
-                            oldDeal = price
+                if(price <= 2000 && price !== oldPrice){
+                    if (snipeName === alreadyDetected) {
+                        if (price !== oldPrice) {
+                            oldPrice = price
                             alreadyDetected = snipeName
+                            DealMessenger(snipeName, price, dealImage, url)
                             console.log(`Snipe: ${snipeName}, \n url: ${url}, \n price: ${price}`)
+                        } else {
+                            return
                         }
+                    } else if (stackedName !== alreadyDetectedStacked){
+                        oldPrice = price
+                        alreadyDetected = snipeName
+                        alreadyDetectedStacked = stackedName
+                        DealMessenger(snipeName, price, dealImage, url)
+                        console.log(`Snipe: ${snipeName}, \n url: ${url}, \n price: ${price}`)
                     }
+                }
             })
         } catch (err) {
             console.log(err)
