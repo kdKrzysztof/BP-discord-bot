@@ -12,7 +12,8 @@ const client = new DiscordJS.Client({
 client.login(process.env.TOKEN)
 
 const guildID = '988141673257271386'
-const roleID_CS = '990648751221788744'
+const roleID_CS1 = '990648751221788744'
+const roleID_CS2 = '990195296443203635'
 const roleID_PST = '1041330624578981970'
 // const guild = client.guilds.cache.get(guildID)
 // const devRoleID = '988144372732268544'
@@ -21,6 +22,7 @@ const roleID_PST = '1041330624578981970'
 
 const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) => {
     const channelCS = client.channels.cache.get('988173210057052210')
+    const channelPST = client.channels.cache.get('1046067225590771772') // rare notifs
     let embedData = new MessageEmbed()
         .setColor(0xDC143C)
         .setAuthor({ name: category})
@@ -72,13 +74,13 @@ const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) =
         .setStyle('LINK')
         .setURL(url)
     )
-    channelCS.send({content: "<@&" + 'roleID_CS' + '>', embeds: [embedData], components: [linkButton]})
+    channelCS.send({content: "<@&" + roleID_CS1 + '>', embeds: [embedData], components: [linkButton]})
     // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
 }
 
 const DealMessenger = (name, price, img, url) => {
-
-    const channelCS = client.channels.cache.get('988173210057052210')
+    const channelCS = client.channels.cache.get('1046123019589910638') // snipe notifs on christophers lounge
+    const channelPST = client.channels.cache.get('1046120755957596250') // snipe notifs on PST
 
     if (name === undefined || url === undefined) { return }
 
@@ -104,7 +106,8 @@ const DealMessenger = (name, price, img, url) => {
     )
 
 
-    channelCS.send({content: "<@&" + 'roleID_CS' + '>', embeds: [embedData], components: [linkButton]})
+    channelCS.send({content: "<@&" + roleID_CS2 + '>', embeds: [embedData], components: [linkButton]})
+    // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
 }
 
 

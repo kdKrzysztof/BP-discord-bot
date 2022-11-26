@@ -10,9 +10,10 @@ let oldPrice = 0
 let oldStuff = []
 let alreadyDetected = ''
 let alreadyDetectedStacked = ''
+let number = 0
 
 const hotdeal = async (data) => {
-    console.log(`Old price: ${oldPrice}, already detected: ${alreadyDetected}`)
+    console.log(`Old price: ${oldPrice}, already detected: ${alreadyDetected}, specialHotdealsNumber: ${number}`)
     try {
             
             let root = parse(data, {
@@ -40,7 +41,7 @@ const hotdeal = async (data) => {
                 
                 if (price === undefined || url === undefined) {return}
                 
-                if(price <= 2000 && price !== oldPrice){
+                if(price <= 1200 && price !== oldPrice){
                     if (snipeName === alreadyDetected) {
                         if (price !== oldPrice) {
                             oldPrice = price
@@ -51,10 +52,10 @@ const hotdeal = async (data) => {
                             return
                         }
                     } else if (stackedName !== alreadyDetectedStacked){
+                        number = number + 1
                         oldPrice = price
                         alreadyDetected = snipeName
                         alreadyDetectedStacked = stackedName
-                        DealMessenger(snipeName, price, dealImage, url)
                         console.log(`Snipe: ${snipeName}, \n url: ${url}, \n price: ${price}`)
                     }
                 }
@@ -64,7 +65,7 @@ const hotdeal = async (data) => {
         }
     }
     
-    export default hotdeal
+export default hotdeal
     
     
     // oldStuff.forEach((i) => {
