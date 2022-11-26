@@ -1,7 +1,7 @@
 import {parse} from 'node-html-parser';
 import dotenv from 'dotenv'
 dotenv.config()
-import {RareMessenger} from './messenger.js'
+import {RareMessenger, DealMessenger} from './messenger.js'
 import getApi from './getApi.js'
 import hotdeal from '../features/hotdeal.js'
 
@@ -26,11 +26,7 @@ let itemRaresList = []
 let ItemRaresImgList = []
 
 const Rares = setInterval(async () => {
-    console.log('number:' + start)
-    itemRaresList = []
-    ItemRaresImgList = []
-
-    const data = await getApi(BP_API_newShirts)
+    const data = await getApi(BP_API_RARES)
     
     let root = parse(data, {
         lowerCaseTagName: false,
@@ -43,7 +39,14 @@ const Rares = setInterval(async () => {
         }
     })
 
-    hotdeal(data) // snipe function
+    // hotdeal(data) // snipe function
+    console.log('number:' + start)
+
+    
+    itemRaresList = []
+    ItemRaresImgList = []
+
+
     
     name = root.querySelectorAll('.d-block.truncate.text-decoration-none.fw-semibold.text-light.mb-1')[0]?.structuredText.trim()
     priceCredits = root.querySelectorAll('.d-flex.flex-column.gap-1.text-center.text-sm.my-2')[0]?.getElementsByTagName('div')[0]?.structuredText.trim()
@@ -92,7 +95,7 @@ const Rares = setInterval(async () => {
     
     console.log(`${ItemLink}, \n Name: ${name} \n Creator: ${creator}, \n Credits: ${priceCredits}, \n Bits: ${priceBits}, \n URL: ${ItemRaresImgList[0]}`)
     
-    if (start <= 1) {return}
+    // if (start <= 1) {return}
 
 
     RareMessenger(category, name, priceCredits, priceBits, priceFree, ItemLink, stock, ItemRaresImgList[0])

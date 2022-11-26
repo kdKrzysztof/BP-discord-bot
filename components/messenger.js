@@ -16,12 +16,12 @@ const roleID_CS = '990648751221788744'
 const roleID_PST = '1041330624578981970'
 // const guild = client.guilds.cache.get(guildID)
 // const devRoleID = '988144372732268544'
-// const channelPST = client.channels.cache.get('1041328338272264202')
+// const channelPST = client.channels.cache.get('1046067225590771772')
 
 
 const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) => {
-    const channel = client.channels.cache.get('988173210057052210')
-    const embedData = new MessageEmbed()
+    const channelCS = client.channels.cache.get('988173210057052210')
+    let embedData = new MessageEmbed()
         .setColor(0xDC143C)
         .setAuthor({ name: category})
         .setTitle(name)
@@ -66,18 +66,45 @@ const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) =
             }
         )
     }
-    const linkButton = new MessageActionRow().addComponents(
+    let linkButton = new MessageActionRow().addComponents(
         new MessageButton()
         .setLabel('Link')
         .setStyle('LINK')
         .setURL(url)
-        )
-    channel.send({content: "<@&" + 'roleID_CS' + '>', embeds: [embedData], components: [linkButton]})
+    )
+    channelCS.send({content: "<@&" + 'roleID_CS' + '>', embeds: [embedData], components: [linkButton]})
     // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
 }
 
-const DealMessenger = () => {
-    
+const DealMessenger = (name, price, img, url) => {
+
+    const channelCS = client.channels.cache.get('988173210057052210')
+
+    if (name === undefined || url === undefined) { return }
+
+    let embedData = new MessageEmbed()
+        .setColor(0xDC143C)
+        .setAuthor({ name: 'New snipe!'})
+        .setTitle(name)
+        .setURL(url)
+        .setThumbnail(img)
+        .addFields(
+            {
+                name: 'Credits: ',
+                value: price
+            }
+        )
+        .setTimestamp()
+
+    let linkButton = new MessageActionRow().addComponents(
+        new MessageButton()
+        .setLabel('Link')
+        .setStyle('LINK')
+        .setURL(url)
+    )
+
+
+    channelCS.send({content: "<@&" + 'roleID_CS' + '>', embeds: [embedData], components: [linkButton]})
 }
 
 
