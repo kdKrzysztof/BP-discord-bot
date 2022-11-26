@@ -4,31 +4,45 @@ import dotenv from 'dotenv'
 import DiscordJS, {Intents} from 'discord.js'
 dotenv.config()
 
-var host = process.env.HOST
-var port = process.env.PORT
 
-const client = new DiscordJS.Client({
-    intents: [
-        Intents.FLAGS.GUILDS,
-        Intents.FLAGS.GUILD_MESSAGES
-    ]
-})
+let oldDeal = 0
 
-client.login(process.env.TOKEN)
+const hotdeal = async (data) => {
+    try {
+            let root = parse(data, {
+                lowerCaseTagName: false,
+                comment: false,
+                blockTextElements: {
+                    script: false,
+                    noscript: false,
+                    style: false,
+                    pre: true,
+                }
+            })
+        
+            root.querySelectorAll('.card.position-relative.h-100').forEach(e => {
+                let price
+                try {
+                    price = e.querySelector('.text-credits').innerText.trim().replace(/,/, '')
+                } catch (err) {}
+                let url = e.childNodes[1].attributes['href']
+                let snipeName = e.childNodes[3].childNodes[1].childNodes[3].childNodes[1].innerText.trim()
+                let dealImage =  e.childNodes[1].getElementsByTagName('img')[0].attributes['src']
 
-const BP_API_RARES = `https://www.brickplanet.com/shop/search?featured=0&rare=1&type=0&search=&sort_by=5&page=1`
-const data = await getApi(BP_API_RARES)
+                if (price === undefined || url === undefined) {return}
 
-let root = parse(data, {
-    lowerCaseTagName: false,
-    comment: false,
-    blockTextElements: {
-        script: false,
-        noscript: false,
-        style: false,
-        pre: true,
+                if (price != oldDeal || price < oldDeal) {
+                    if(price <= 2){
+                        oldDeal = price
+                        console.log(`Snipe: ${snipeName}, \n url: ${url}, \n price: ${price}`)
+                    }
+                }
+            })
+        } catch (err) {
+            console.log(err)
+        }
     }
-})
-
-console.log(root)
-
+    
+    export default hotdeal
+    
+    

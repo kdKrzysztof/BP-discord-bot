@@ -19,7 +19,7 @@ const roleID_PST = '1041330624578981970'
 // const channelPST = client.channels.cache.get('1041328338272264202')
 
 
-const RareMessenger = (category, name, credits, bits, isFree, url, creator, stock, img) => {
+const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) => {
     const channel = client.channels.cache.get('988173210057052210')
     const embedData = new MessageEmbed()
         .setColor(0xDC143C)
@@ -34,6 +34,10 @@ const RareMessenger = (category, name, credits, bits, isFree, url, creator, stoc
         //         },
         //     )
         .setTimestamp()
+    if (bits === undefined && credits === undefined && isFree !== undefined) {
+        // embedData.setAuthor({name: 'Free'}) ###### deprecated
+        return
+    }
     if (credits !== undefined) {
         embedData.addFields(
             {
@@ -52,11 +56,8 @@ const RareMessenger = (category, name, credits, bits, isFree, url, creator, stoc
             }
         )    
     }
-    if (bits === undefined && credits === undefined && isFree !== undefined) {
-        embedData.setAuthor({name: 'Free'})
-    }
     if (stock !== undefined) {
-        const fixedStock = stock.replace('remaining', '')
+        const fixedStock = stock.replace('remaining', ' ')
         embedData.addFields(
             {
                 name: 'Stock',
@@ -71,7 +72,7 @@ const RareMessenger = (category, name, credits, bits, isFree, url, creator, stoc
         .setStyle('LINK')
         .setURL(url)
         )
-    channel.send({content: "<@&" + roleID_CS + '>', embeds: [embedData], components: [linkButton]})
+    channel.send({content: "<@&" + 'roleID_CS' + '>', embeds: [embedData], components: [linkButton]})
     // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
 }
 
