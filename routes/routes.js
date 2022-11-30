@@ -1,19 +1,63 @@
 import express from "express";
 import dotenv from 'dotenv';
 import mongoose from "mongoose"
+import userSchema from '../models/userSchema.js'
 
 dotenv.config()
 
 const app = express();
-const dbpass = process.env.DBPASS
+app.use(express.json())
 
-mongoose.connect(dbpass, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => {
-        app.listen(process.env.PORT, () => {
-            console.log(`listening on: ${process.env.PORT}`)
+app.post('/createUser', (req, res) => {
+    console.log('new request on createuser')
+
+    const createUser = new userSchema({
+        bpUsername: req.body.bpUsername,
+        discordId: req.body.discordId
+    })
+
+    createUser.save()
+        .then((result) => {
+            res.send(req.body)
         })
-        console.log('connected to database')
+        .catch((err) => {
+            res.send(req.body)
+        })
+})
+
+app.post('/findDiscordAccount', (req, res) => {
+    const findUserDiscord = userSchema.findOne({ 
+        discordId: req.body.discordId
+    }, (error, data) => {
+        if (error) {
+            console.log(data)
+            res.send(error)
+        } else {
+            if (data === null) {
+                res.status(200).send(false)
+            } else {
+                res.status(200).send(true)
+            }
+        }
     })
-    .catch((err) => {
-        console.log(err)
+
+})
+
+app.post('/findBpUsername', (req, res) => {
+    const findUserDiscord = userSchema.findOne({ 
+        bpUsername: req.body.bpUsername
+    }, (error, data) => {
+        if (error) {
+            console.log(data)
+            res.send(error)
+        } else {
+            if (data === null) {
+                res.status(200).send({ found: false })
+            } else {
+                res.status(200).send({ found: true })
+            }
+        }
     })
+})
+
+export default app
