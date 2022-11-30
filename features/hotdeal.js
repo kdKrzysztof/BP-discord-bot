@@ -40,6 +40,11 @@ const hotdeal = async (data) => {
 
                 
                 if (price === undefined || url === undefined) {return}
+
+                if (snipeName === alreadyDetected && price !== oldPrice && oldPrice !== 0) {
+                    oldPrice = 0;
+                    return
+                }
                 
                 if(price <= 1200 && price !== oldPrice){
                     if (snipeName === alreadyDetected) {
@@ -56,6 +61,7 @@ const hotdeal = async (data) => {
                         oldPrice = price
                         alreadyDetected = snipeName
                         alreadyDetectedStacked = stackedName
+                        DealMessenger(snipeName, price, dealImage, url)
                         console.log(`Snipe: ${snipeName}, \n url: ${url}, \n price: ${price}`)
                     }
                 }

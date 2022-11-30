@@ -14,13 +14,19 @@ client.login(process.env.TOKEN)
 const guildID = '988141673257271386'
 const roleID_CS1 = '990648751221788744'
 const roleID_CS2 = '990195296443203635'
-const roleID_PST = '1041330624578981970'
+const roleID_PST1 = '1046068325450526811'
+const roleID_PST2 = '1046126207600705548'
 // const guild = client.guilds.cache.get(guildID)
 // const devRoleID = '988144372732268544'
 // const channelPST = client.channels.cache.get('1046067225590771772')
-
+let oldRare = ''
 
 const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) => {
+
+    if (name === oldRare || name === undefined) {return}
+
+    oldRare = name
+
     const channelCS = client.channels.cache.get('988173210057052210')
     const channelPST = client.channels.cache.get('1046067225590771772') // rare notifs
     let embedData = new MessageEmbed()
@@ -75,7 +81,7 @@ const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) =
         .setURL(url)
     )
     channelCS.send({content: "<@&" + roleID_CS1 + '>', embeds: [embedData], components: [linkButton]})
-    // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
+    // channelPST.send({content: "<@&" + roleID_PST1 + '>', embeds: [embedData], components: [linkButton]})
 }
 
 const DealMessenger = (name, price, img, url) => {
@@ -107,7 +113,7 @@ const DealMessenger = (name, price, img, url) => {
 
 
     channelCS.send({content: "<@&" + roleID_CS2 + '>', embeds: [embedData], components: [linkButton]})
-    // channelPST.send({content: "<@&" + roleID_PST + '>', embeds: [embedData], components: [linkButton]})
+    // channelPST.send({content: "<@&" + roleID_PST2 + '>', embeds: [embedData], components: [linkButton]})
 }
 
 

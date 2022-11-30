@@ -24,6 +24,7 @@ let secondOldRare
 let ItemLink
 let itemRaresList = []
 let ItemRaresImgList = []
+let oldName
 
 const Rares = setInterval(async () => {
     const data = await getApi(BP_API_RARES)
@@ -39,7 +40,7 @@ const Rares = setInterval(async () => {
         }
     })
 
-    hotdeal(data) // snipe function
+    await hotdeal(data) // snipe function
     console.log('number:' + start)
 
     
@@ -90,17 +91,21 @@ const Rares = setInterval(async () => {
         return
     }
     
-
+    
     start = start + 1
     
+    console.log(name)
     console.log(`${ItemLink}, \n Name: ${name} \n Creator: ${creator}, \n Credits: ${priceCredits}, \n Bits: ${priceBits}, \n URL: ${ItemRaresImgList[0]}`)
+    
+    if (name === oldName) {return}
+    oldName = name
     
     if (start <= 1) {return}
 
 
     RareMessenger(category, name, priceCredits, priceBits, priceFree, ItemLink, stock, ItemRaresImgList[0])
 
-}, 3000);
+}, 1100);
 
 
 export default Rares

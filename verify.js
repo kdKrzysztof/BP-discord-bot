@@ -1,6 +1,6 @@
 import DiscordJS, { ApplicationCommandManager, GuildApplicationCommandManager, GuildChannel, GuildMember, Intents, Message, MessageEmbed, Role, MessageActionRow, MessageButton} from 'discord.js'
 import dotenv from 'dotenv'
-import getProfileData from '../components/getProfileData.js'
+import getProfileData from './components/getProfileData.js'
 dotenv.config()
 
 const random = () => {
@@ -100,7 +100,7 @@ client.on('ready', () => {
 
                         const data = await getProfileData(username)
 
-                        if (data[0].startsWith(randomNumber)){
+                        if (data[0].startsWith(randomNumber) || data[0].endsWith(randomNumber)){
                             try{
                                 await interaction.member.setNickname(data[1])
                             } catch {
