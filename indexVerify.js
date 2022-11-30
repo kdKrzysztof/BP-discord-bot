@@ -1,7 +1,24 @@
 import DiscordJS, { ApplicationCommandManager, GuildApplicationCommandManager, GuildChannel, GuildMember, Intents, Message, MessageEmbed, Role, MessageActionRow, MessageButton} from 'discord.js'
-import dotenv from 'dotenv'
 import getProfileData from './components/getProfileData.js'
+import express from "express";
+import dotenv from 'dotenv';
+import mongoose from "mongoose"
+
 dotenv.config()
+
+const app = express();
+const dbpass = process.env.DBPASS
+
+mongoose.connect(dbpass, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        app.listen(process.env.PORT, () => {
+            console.log(`listening on: ${process.env.PORT}`)
+        })
+        console.log('connected to database')
+    })
+    .catch((err) => {
+        console.log(err)
+    })
 
 const random = () => {
     return Math.floor(Math.random() * 100000000 + 999999999)

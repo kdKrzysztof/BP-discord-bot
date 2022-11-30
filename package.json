@@ -2,10 +2,10 @@
   "name": "bvtrade-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "verify.js",
+  "main": "indexVerify.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon verify.js"
+    "dev": "nodemon indexVerify.js"
   },
   "keywords": [],
   "author": "Christopher's Lounge",
@@ -13,6 +13,8 @@
   "dependencies": {
     "discord.js": "^13.12.0",
     "dotenv": "^16.0.1",
+    "express": "^4.18.2",
+    "mongoose": "^6.7.4",
     "node-html-parser": "^6.1.4"
   },
   "type": "module"
