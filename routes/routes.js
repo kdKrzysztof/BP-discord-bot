@@ -9,8 +9,6 @@ const app = express();
 app.use(express.json())
 
 app.post('/createUser', (req, res) => {
-    console.log('new request on createuser')
-
     const createUser = new userSchema({
         bpUsername: req.body.bpUsername,
         discordId: req.body.discordId
@@ -36,7 +34,7 @@ app.post('/findDiscordAccount', (req, res) => {
             if (data === null) {
                 res.status(200).send(false)
             } else {
-                res.status(200).send(true)
+                res.status(200).send(data)
             }
         }
     })
@@ -54,7 +52,7 @@ app.post('/findBpUsername', (req, res) => {
             if (data === null) {
                 res.status(200).send(false)
             } else {
-                res.status(200).send(true)
+                res.status(200).send(data)
             }
         }
     })

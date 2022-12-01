@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import mongoose from "mongoose"
 import app from './routes/routes.js'
 import fetchHandler from './components/fetchHandler.js'
+import { json } from 'express';
 
 dotenv.config()
 
@@ -68,23 +69,12 @@ client.on('ready', () => {
                 const userRole = interaction.member._roles.find(e => e == verifiedRole)
                 const { commandName, options } = interaction
                 const randomNumber = random()
+                const discordID = client.users.cache.get(interaction.member.user.id)
+                let commandUsername = options.getString('username')
+                let usernameModified = (commandUsername).toLowerCase().replace(' ', '-')
                 
-                let username = (options.getString('username')).toLowerCase().trim()
-                
-                console.log(commandName + ': ' + username)
-                
-                let findBpAcc = await fetchHandler.findBpUsername(username)
-                console.log(findBpAcc)
-                if (findBpAcc === true) {
-                    await interaction.reply({
-                        content: `This brickplanet account is already verified.`,
-                        components: [],
-                        ephemeral: true,
-                        fetchReply: true,
-                    })
-                    return
-                }
-                
+                console.log(commandName + ': ' + usernameModified)
+
                 const button = new MessageActionRow().addComponents(
                     new MessageButton()
                     .setLabel('Verify')
@@ -93,11 +83,27 @@ client.on('ready', () => {
                 ); 
 
                 if(!userRole){
-                    const discordID = client.users.cache.get(interaction.member.user.id)
-                    let findUser = await fetchHandler.findDiscordAccount(discordID)
-                    if (findUser === true) {
+                    let findUser = await fetchHandler.findDiscordAccount(discordID.id)
+                    if (findUser !== false) {
                         await interaction.reply({
                             content: `Your discord account is already verified. Use: **/unlink** command to unlink your discord account from already verified brickplanet username`,
+                            components: [],
+                            ephemeral: true,
+                            fetchReply: true,
+                        })
+                        try {
+                            await interaction.member.roles.add(verifiedRole)
+                            await interaction.member.setNickname(findUser.bpUsername)
+                        } catch (err) {
+                            console.log(err)
+                        }
+                        return
+                    }
+
+                    let findBpAcc = await fetchHandler.findBpUsername(commandUsername)
+                    if (findBpAcc !== false) {
+                        await interaction.reply({
+                            content: `This brickplanet account is already verified.`,
                             components: [],
                             ephemeral: true,
                             fetchReply: true,
@@ -131,13 +137,13 @@ client.on('ready', () => {
                 const collector = interaction.channel.createMessageComponentCollector({filter, time:timeOut})
                 
                 collector.on('collect', async i => {
-                    const data = await getProfileData(username)
+                    const data = await getProfileData(usernameModified)
                     
                     if (data[0].startsWith(randomNumber) || data[0].endsWith(randomNumber)){
-                        fetchHandler.createUser(username, discordID)
+                        fetchHandler.createUser(commandUsername, discordID.id)
                         
                         try{
-                            await interaction.member.setNickname(data[1])
+                            await interaction.member.setNickname(commandUsername)
                         } catch {
                             console.log('no perms')
                             return
@@ -174,11 +180,3 @@ client.on('ready', () => {
         console.log('logged in')
     }
 )
-        
-        
-        
-        // const randomNumber = (min, max) => {
-            //     return Math.floor(Math.random() * (max - min + 1) + min)
-            // }
-            
-            // let random = randomNumber(0, ListOfQuotes.length - 1)
