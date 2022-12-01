@@ -20,10 +20,7 @@ mongoose.connect(dbpass, { useNewUrlParser: true, useUnifiedTopology: true })
         console.log(err)
     })
 
-const random = () => {
-    return Math.floor(Math.random() * 100000000 + 1000000000)
-}
-
+    
 const client = new DiscordJS.Client({
     intents: [
         Intents.FLAGS.GUILDS,
@@ -32,6 +29,10 @@ const client = new DiscordJS.Client({
 })
 
 client.login(process.env.TOKEN)
+
+const random = () => {
+    return Math.floor(Math.random() * 100000000 + 1000000000)
+}
 
 client.on('ready', () => {
     const guildID = '988141673257271386'
@@ -60,131 +61,119 @@ client.on('ready', () => {
     })
     
     
-    const button = new MessageActionRow().addComponents(
-        new MessageButton()
-        .setCustomId('verify-button')
-        .setLabel('Verify')
-        .setStyle('PRIMARY')
-        .setCustomId('VERIFY')
-        )
-        
-        client.on('interactionCreate', async (interaction) => {
-            try {
-                if (interaction.isCommand() && interaction.commandName === 'verify') {
+    client.on('interactionCreate', async (interaction) => {
+        try {
+            if (interaction.isCommand() && interaction.commandName === 'verify') {
+                const verifiedRole = '988144280596004984'
+                const userRole = interaction.member._roles.find(e => e == verifiedRole)
+                const { commandName, options } = interaction
+                const randomNumber = random()
+                
+                let username = (options.getString('username')).toLowerCase().trim()
+                
+                console.log(commandName + ': ' + username)
+                
+                let findBpAcc = await fetchHandler.findBpUsername(username)
+                console.log(findBpAcc)
+                if (findBpAcc === true) {
+                    await interaction.reply({
+                        content: `This brickplanet account is already verified.`,
+                        components: [],
+                        ephemeral: true,
+                        fetchReply: true,
+                    })
+                    return
+                }
+                
+                const button = new MessageActionRow().addComponents(
+                    new MessageButton()
+                    .setLabel('Verify')
+                    .setStyle('PRIMARY')
+                    .setCustomId('VERIFY')
+                ); 
 
-                    const verifiedRole = '988144280596004984'
-                    const userRole = interaction.member._roles.find(e => e == verifiedRole)
-                    const { commandName, options } = interaction
-                    const randomNumber = random()
-                    
-                    let username = (options.getString('username')).toLowerCase().trim()
-                    
-                    console.log(commandName + ': ' + username)
-                    
-                    
-                    const button = new MessageActionRow().addComponents(
-                        new MessageButton()
-                        .setLabel('Verify')
-                        .setStyle('PRIMARY')
-                        .setCustomId('VERIFY')
-                    ); 
-
-                    if(!userRole){
-
-                        const discordID = client.users.cache.get(interaction.member.user.id)
-
-                        let findUser = await fetchHandler.findDiscordAccount(discordID)
-
-                        if (findUser === true) {
-                            await interaction.reply({
-                                content: `Your discord account is already verified. Use: **/unlink** command to unlink your discord account from already verified brickplanet username`,
-                                components: [],
-                                ephemeral: true,
-                                fetchReply: true,
-                            })
-                            return
-                        }
-                        
-                        try {
-                            await discordID.send("Type this random number in your profile's bio: " + randomNumber)
-                        } catch {}
-
+                if(!userRole){
+                    const discordID = client.users.cache.get(interaction.member.user.id)
+                    let findUser = await fetchHandler.findDiscordAccount(discordID)
+                    if (findUser === true) {
                         await interaction.reply({
-                            content: `Please put this number at start or end of your profile's bio: ${randomNumber}`,
-                            components: [button],
+                            content: `Your discord account is already verified. Use: **/unlink** command to unlink your discord account from already verified brickplanet username`,
+                            components: [],
                             ephemeral: true,
                             fetchReply: true,
                         })
-                            .then (msg => {
-                                setTimeout(() => {
-                                    interaction.editReply({
-                                        content: 'times up',
-                                        components: [],
-                                        ephemeral: true
-                                    })
-                                }, timeOut);
-                            })
-                            .catch(msg => {
-                                console.log('error')
-                            })
-
-                    const filter = i => i.customId === 'VERIFY' && i.user.id === discordID.id
-                    
-                    const collector = interaction.channel.createMessageComponentCollector({filter, time:timeOut})
-                    
-                    collector.on('collect', async i => {
-                        
-                        let findBpAcc = fetchHandler.findBpUsername(username)
-                        if (findBpAcc === true) {
-                            
-                        }
-
-                        const data = await getProfileData(username)
-                        
-                        
-                        if (data[0].startsWith(randomNumber) || data[0].endsWith(randomNumber)){
-                            fetchHandler.createUser(username, discordID)
-                            
-                            try{
-                                await interaction.member.setNickname(data[1])
-                            } catch {
-                                console.log('no perms')
-                                return
-                            }
-                            
-                            await interaction.member.roles.add(verifiedRole)
-                            await i.deferUpdate()
-
-                            try {
-                                await discordID.send('Your account has been verified!')
-                            } catch {}
-
-                        } else {
-                            interaction.editReply({
-                                content: 'Incorrect verification code in BIO. Please redo the interaction.',
-                                components: [],
-                                ephemeral: true
-                            })
-                        }
-                    })
-                } else {
-                    await interaction.reply(
-                        {
-                            content: 'Your account is already verfied',
-                            components: [],
-                            ephemeral: true,
-                        }
-                        )
-                        interaction.deferred
+                        return
                     }
+                    
+                    try {
+                        await discordID.send("Type this random number in your profile's bio: " + randomNumber)
+                    } catch {}
+                    await interaction.reply({
+                        content: `Please put this number at start or end of your profile's bio: ${randomNumber}`,
+                        components: [button],
+                        ephemeral: true,
+                        fetchReply: true,
+                    })
+                        .then (msg => {
+                            setTimeout(() => {
+                                interaction.editReply({
+                                    content: 'times up',
+                                    components: [],
+                                    ephemeral: true
+                                })
+                            }, timeOut);
+                        })
+                        .catch(msg => {
+                            console.log('error')
+                        })
+                const filter = i => i.customId === 'VERIFY' && i.user.id === discordID.id
+                
+                const collector = interaction.channel.createMessageComponentCollector({filter, time:timeOut})
+                
+                collector.on('collect', async i => {
+                    const data = await getProfileData(username)
+                    
+                    if (data[0].startsWith(randomNumber) || data[0].endsWith(randomNumber)){
+                        fetchHandler.createUser(username, discordID)
+                        
+                        try{
+                            await interaction.member.setNickname(data[1])
+                        } catch {
+                            console.log('no perms')
+                            return
+                        }
+                        
+                        await interaction.member.roles.add(verifiedRole)
+                        await i.deferUpdate()
+                        try {
+                            await discordID.send('Your account has been verified!')
+                        } catch {}
+                    } else {
+                        interaction.editReply({
+                            content: 'Incorrect verification code in BIO. Please redo the interaction.',
+                            components: [],
+                            ephemeral: true
+                        })
+                    }
+                })
+            } else {
+                await interaction.reply(
+                    {
+                        content: 'Your account is already verfied',
+                        components: [],
+                        ephemeral: true,
+                    }
+                    )
+                    interaction.deferred
                 }
-                } catch (err) {
-                    console.log(err)
-                }
-            })
-            console.log('logged in')
-        }
-        )
+            }
+            } catch (err) {
+                console.log(err)
+            }
+        })
+        console.log('logged in')
+    }
+)
         
         
         

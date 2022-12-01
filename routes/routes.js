@@ -52,9 +52,9 @@ app.post('/findBpUsername', (req, res) => {
             res.send(error)
         } else {
             if (data === null) {
-                res.status(200).send({ found: false })
+                res.status(200).send(false)
             } else {
-                res.status(200).send({ found: true })
+                res.status(200).send(true)
             }
         }
     })

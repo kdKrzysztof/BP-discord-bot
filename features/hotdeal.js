@@ -39,6 +39,10 @@ const hotdeal = async (data) => {
                 let stackedName = (price+snipeName.replaceAll(' ', '')).trim()
 
                 
+                if (snipeName === 'Christmas Unique Crate #1') {
+                    return
+                }        
+                
                 if (price === undefined || url === undefined) {return}
 
                 if (snipeName === alreadyDetected && price !== oldPrice && oldPrice !== 0) {
