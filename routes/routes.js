@@ -46,13 +46,31 @@ app.post('/findBpUsername', (req, res) => {
         bpUsername: req.body.bpUsername
     }, (error, data) => {
         if (error) {
-            console.log(data)
+            console.log(error)
             res.send(error)
         } else {
             if (data === null) {
                 res.status(200).send(false)
             } else {
                 res.status(200).send(data)
+            }
+        }
+    })
+})
+
+app.post('/removeDiscordId', (req, res) => {
+    const removeDiscordId = userSchema.deleteOne({
+        discordId: req.body.discordId
+    }, (error, data) => {
+        if (error) {
+            console.log(error)
+            res.send(false)
+        } else {
+            console.log(data.deletedCount)
+            if (data.deletedCount === 0){
+                res.status(200).send(false)
+            } else {
+                res.status(200).send(true)
             }
         }
     })

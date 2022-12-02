@@ -36,6 +36,7 @@ const random = () => {
 }
 
 client.on('ready', () => {
+    const verifiedRole = process.env.VERIFIED
     const guildID = '988141673257271386'
     const guild = client.guilds.cache.get(guildID)
     const timeOut = 60000
@@ -60,16 +61,22 @@ client.on('ready', () => {
             }
         ]
     })
+    commands?.create({
+        name: 'unlink',
+        description: 'Unlink your discord account from your bp account'
+    })
     
     
     client.on('interactionCreate', async (interaction) => {
+
+        const discordID = client.users.cache.get(interaction.member.user.id)
+        const userRole = interaction.member._roles.find(e => e == verifiedRole)
+        const { commandName, options } = interaction
+        const randomNumber = random()
+
         try {
+            
             if (interaction.isCommand() && interaction.commandName === 'verify') {
-                const verifiedRole = '988144280596004984'
-                const userRole = interaction.member._roles.find(e => e == verifiedRole)
-                const { commandName, options } = interaction
-                const randomNumber = random()
-                const discordID = client.users.cache.get(interaction.member.user.id)
                 let commandUsername = options.getString('username')
                 let usernameModified = (commandUsername).toLowerCase().replace(' ', '-')
                 
@@ -83,6 +90,7 @@ client.on('ready', () => {
                 ); 
 
                 if(!userRole){
+
                     let findUser = await fetchHandler.findDiscordAccount(discordID.id)
                     if (findUser !== false) {
                         await interaction.reply({
@@ -100,7 +108,7 @@ client.on('ready', () => {
                         return
                     }
 
-                    let findBpAcc = await fetchHandler.findBpUsername(commandUsername)
+                    let findBpAcc = await fetchHandler.findBpUsername(usernameModified)
                     if (findBpAcc !== false) {
                         await interaction.reply({
                             content: `This brickplanet account is already verified.`,
@@ -113,7 +121,10 @@ client.on('ready', () => {
                     
                     try {
                         await discordID.send("Type this random number in your profile's bio: " + randomNumber)
-                    } catch {}
+                    } catch(err) {
+                        console.log(err)
+                    }
+
                     await interaction.reply({
                         content: `Please put this number at start or end of your profile's bio: ${randomNumber}`,
                         components: [button],
@@ -132,47 +143,92 @@ client.on('ready', () => {
                         .catch(msg => {
                             console.log('error')
                         })
-                const filter = i => i.customId === 'VERIFY' && i.user.id === discordID.id
-                
-                const collector = interaction.channel.createMessageComponentCollector({filter, time:timeOut})
-                
-                collector.on('collect', async i => {
-                    const data = await getProfileData(usernameModified)
-                    
-                    if (data[0].startsWith(randomNumber) || data[0].endsWith(randomNumber)){
-                        fetchHandler.createUser(commandUsername, discordID.id)
+
+                    const filter = i => i.customId === 'VERIFY' && i.user.id === discordID.id
                         
-                        try{
-                            await interaction.member.setNickname(commandUsername)
-                        } catch {
-                            console.log('no perms')
-                            return
+                    const collector = interaction.channel.createMessageComponentCollector({filter, time:timeOut})
+                        
+                    collector.on('collect', async i => {
+                        const data = await getProfileData(usernameModified)
+
+                        if (data[0].startsWith(randomNumber) || data[0].endsWith(randomNumber)){
+                            fetchHandler.createUser(usernameModified, discordID.id)
+
+                            try{
+                                await interaction.member.setNickname(commandUsername)
+                            } catch {
+                                console.log('no perms')
+                                return
+                            }
+
+                            await interaction.member.roles.add(verifiedRole)
+                            await i.deferUpdate()
+
+                            try {
+                                await discordID.send('Your account has been verified!')
+                            } catch(err) {
+                                console.log(err)
+                            }
+
+                        } else {
+                            interaction.editReply(
+                                {
+                                    content: 'Incorrect verification code in BIO. Please redo the interaction.',
+                                    components: [],
+                                    ephemeral: true
+                                }
+                            )
                         }
-                        
-                        await interaction.member.roles.add(verifiedRole)
-                        await i.deferUpdate()
-                        try {
-                            await discordID.send('Your account has been verified!')
-                        } catch {}
-                    } else {
-                        interaction.editReply({
-                            content: 'Incorrect verification code in BIO. Please redo the interaction.',
-                            components: [],
-                            ephemeral: true
-                        })
-                    }
-                })
+                    })
+
             } else {
+
                 await interaction.reply(
-                    {
-                        content: 'Your account is already verfied',
-                        components: [],
-                        ephemeral: true,
-                    }
+                        {
+                            content: 'Your account is already verfied',
+                            components: [],
+                            ephemeral: true,
+                        }
                     )
                     interaction.deferred
                 }
             }
+                if (interaction.isCommand() && interaction.commandName === 'unlink') {
+
+                    let findUser = await fetchHandler.removeDiscordId(discordID.id)
+
+                    if (findUser !== false) {
+
+                        await interaction.reply(
+                            {
+                                content: `Your account has be successfuly unlinked`,
+                                components: [],
+                                ephemeral: true,
+                                fetchReply: true,
+                            }
+                        )
+
+                        try {
+                            await interaction.member.roles.remove(verifiedRole)
+                        } catch (err) {
+                            console.log(err)
+                        }
+
+                        return
+                    } else {
+
+                        await interaction.reply(
+                            {
+                                content: `Your account is not verified.`,
+                                components: [],
+                                ephemeral: true,
+                                fetchReply: true,
+                            }
+                        )
+
+                        return
+                    }
+                }
             } catch (err) {
                 console.log(err)
             }
