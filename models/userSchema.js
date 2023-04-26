@@ -1,22 +1,25 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const schema = mongoose.Schema
+const schema = mongoose.Schema;
 
-const usernameListSchema = new schema({
+const usernameListSchema = new schema(
+  {
     bpUsername: {
-        type: String,
-        required: true
+      type: String,
+      required: true
     },
     discordId: {
-        type: String,
-        required: true,
+      type: String,
+      required: true
     },
     isBanned: {
-        type: Boolean,
-        required: false
+      type: Boolean,
+      required: false
     }
-}, {timestamps: true})
+  },
+  { timestamps: true }
+);
 
-const usernameList = mongoose.model('Users', usernameListSchema)
+const usernameList = mongoose.model('Users', usernameListSchema);
 
-export default usernameList
+export default usernameList;
