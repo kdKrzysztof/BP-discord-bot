@@ -46,7 +46,7 @@ const random = () => {
 
 client.on('ready', () => {
   const verifiedRole = process.env.VERIFIED;
-  const guildID = '988141673257271386';
+  const guildID = process.env.NOTIFIER_GUILD_ID;
   const guild = client.guilds.cache.get(guildID);
   const timeOut = 60000;
 

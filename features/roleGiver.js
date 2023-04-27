@@ -10,6 +10,8 @@ import DiscordJS, {
   MessageActionRow,
   MessageButton
 } from 'discord.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const client = new DiscordJS.Client({
   intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
@@ -27,7 +29,7 @@ const button = new MessageActionRow().addComponents(
 
 client.on('ready', () => {
   client.on('interactionCreate', async (interaction) => {
-    const notifierRole = '1046068325450526811';
+    const notifierRole = process.env.NOTIFIER_ROLE_ID;
     const timeOut = 2000;
 
     const collector = interaction.channel.createMessageComponentCollector({
