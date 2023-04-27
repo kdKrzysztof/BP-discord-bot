@@ -37,9 +37,3 @@ client.on('ready', () => {
   }, 20000);
   console.log('logged in');
 });
-
-// const randomNumber = (min, max) => {
-//     return Math.floor(Math.random() * (max - min + 1) + min)
-// }
-
-// let random = randomNumber(0, ListOfQuotes.length - 1)

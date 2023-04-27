@@ -18,43 +18,31 @@ const client = new DiscordJS.Client({
 });
 
 client.login(process.env.TOKEN);
+const guildID = process.env.NOTIFIER_GUILD_ID;
+const roleID = process.env.NOTIFIER_ROLE_ID;
 
-const guildID = '988141673257271386';
-const roleID_CS1 = '990648751221788744';
-const roleID_CS2 = '990195296443203635';
-const roleID_PST1 = '1046068325450526811';
-const roleID_PST2 = '1046126207600705548';
-// const guild = client.guilds.cache.get(guildID)
-// const devRoleID = '988144372732268544'
-// const channelPST = client.channels.cache.get('1046067225590771772')
 let oldRare = '';
 
 const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) => {
+  const channelID = client.channels.cache.get(process.env.NOTIFIER_CHANNEL_ID);
+
   if (name === oldRare || name === undefined) {
     return;
   }
 
   oldRare = name;
 
-  const channelCS = client.channels.cache.get('988173210057052210');
-  const channelPST = client.channels.cache.get('1046067225590771772'); // rare notifs
   let embedData = new MessageEmbed()
     .setColor(0xdc143c)
     .setAuthor({ name: category })
     .setTitle(name)
     .setURL(url)
     .setThumbnail(img)
-    // .addFields(
-    //         {
-    //             name: 'Creator',
-    //             value: creator
-    //         },
-    //     )
     .setTimestamp();
   if (bits === undefined && credits === undefined && isFree !== undefined) {
-    // embedData.setAuthor({name: 'Free'}) ###### deprecated
     return;
   }
+
   if (credits !== undefined) {
     embedData.addFields({
       name: 'Credits',
@@ -62,6 +50,7 @@ const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) =
       inline: true
     });
   }
+
   if (bits !== undefined) {
     embedData.addFields({
       name: 'Bits',
@@ -69,6 +58,7 @@ const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) =
       inline: true
     });
   }
+
   if (stock !== undefined) {
     const fixedStock = stock.replace('remaining', ' ');
     embedData.addFields({
@@ -77,20 +67,20 @@ const RareMessenger = (category, name, credits, bits, isFree, url, stock, img) =
       inline: true
     });
   }
+
   let linkButton = new MessageActionRow().addComponents(
     new MessageButton().setLabel('Link').setStyle('LINK').setURL(url)
   );
-  channelCS.send({
-    content: '<@&' + roleID_CS1 + '>',
+
+  channelID.send({
+    content: '<@&' + roleID + '>',
     embeds: [embedData],
     components: [linkButton]
   });
-  // channelPST.send({content: "<@&" + roleID_PST1 + '>', embeds: [embedData], components: [linkButton]})
 };
 
 const DealMessenger = (name, price, img, url) => {
-  const channelCS = client.channels.cache.get('1046123019589910638'); // snipe notifs on christophers lounge
-  const channelPST = client.channels.cache.get('1046120755957596250'); // snipe notifs on PST
+  const channelID = client.channels.cache.get(process.env.NOTIFIER_CHANNEL_ID);
 
   if (name === undefined || url === undefined) {
     return;
@@ -112,12 +102,11 @@ const DealMessenger = (name, price, img, url) => {
     new MessageButton().setLabel('Link').setStyle('LINK').setURL(url)
   );
 
-  channelCS.send({
-    content: '<@&' + roleID_CS2 + '>',
+  channelID.send({
+    content: '<@&' + roleID + '>',
     embeds: [embedData],
     components: [linkButton]
   });
-  // channelPST.send({content: "<@&" + roleID_PST2 + '>', embeds: [embedData], components: [linkButton]})
 };
 
 export { DealMessenger, RareMessenger };
