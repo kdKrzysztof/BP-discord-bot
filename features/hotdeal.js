@@ -28,11 +28,7 @@ const hotdeal = async (data) => {
     });
 
     root.querySelectorAll('.card.position-relative.h-100').forEach((e) => {
-      let price;
-      try {
-        price = e.querySelector('.text-credits').innerText.trim().replace(/,/, '');
-      } catch (err) {}
-
+      let price = e.querySelector('.text-credits').innerText.trim().replace(/,/, '') ?? undefined;
       let url = e.childNodes[1].attributes['href'];
       let snipeName = e.childNodes[3].childNodes[1].childNodes[3].childNodes[1].innerText.trim();
       let dealImage = e.childNodes[1].getElementsByTagName('img')[0].attributes['src'];
